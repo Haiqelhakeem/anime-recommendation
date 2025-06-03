@@ -50,7 +50,7 @@ Menggunakan matrix factorization untuk memprediksi rating pengguna terhadap anim
 - Evaluasi: Menggunakan Root Mean Square Error (RMSE) untuk mengukur akurasi prediksi
 - Keunggulan: Dapat menangkap pola preferensi tersembunyi dan memberikan rekomendasi personal
 
-Model SVD akan dievaluasi menggunakan metrik RMSE untuk memastikan kualitas prediksi rating yang optimal, dengan target meminimalkan error antara rating aktual dan prediksi.
+  Model SVD akan dievaluasi menggunakan metrik RMSE untuk memastikan kualitas prediksi rating yang optimal, dengan target meminimalkan error antara rating aktual dan prediksi.
 
 ## Data Understanding
 
