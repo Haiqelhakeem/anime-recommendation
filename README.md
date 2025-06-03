@@ -53,6 +53,46 @@ Menggunakan matrix factorization untuk memprediksi rating pengguna terhadap anim
   Model SVD akan dievaluasi menggunakan metrik RMSE untuk memastikan kualitas prediksi rating yang optimal, dengan target meminimalkan error antara rating aktual dan prediksi.
 
 ## Data Understanding
+Dataset yang digunakan berasal dari Kaggle dengan nama [[Anime Recommendations Database]](https://www.kaggle.com/datasets/CooperUnion/anime-recommendations-database). Dataset terdiri dari file `anime.csv` (Informasi terkait anime) dan `rating.csv` (Interaksi pengguna berupa rating terhadap anime). Pada `anime.csv` terdiri dari beberapa kolom, seperti: anime_id, name, genre, type, episodes, rating, dan members. Sementara `rating.csv` terdiri dari beberapa kolom, seperti: user_id, anime_id, dan rating.
+
+Deskripsi `anime.csv`
+Jumlah Data: 12.294 baris, 7 kolom  
+Terdapat missing values pada kolom `genre`, `type`, dan `rating`.
+
+| Kolom       | Deskripsi                                               |
+|-------------|---------------------------------------------------------|
+| `anime_id`  | ID unik tiap anime                                      |
+| `name`      | Nama anime                                              |
+| `genre`     | Genre anime, dapat lebih dari satu                      |
+| `type`      | Tipe anime (TV, Movie, OVA, dll)                        |
+| `episodes`  | Jumlah episode anime                                    |
+| `rating`    | Rating dari pengguna                                    |
+| `members`   | Jumlah user yang memberi rating di MyAnimeList         |
+
+---
+
+Deskripsi `rating.csv`
+Jumlah Data: ±7 juta baris, 3 kolom  
+Dataset ini digunakan untuk collaborative filtering.
+
+#### Fitur/Variabel:
+| Kolom      | Deskripsi                                               |
+|------------|---------------------------------------------------------|
+| `user_id`  | ID unik pengguna                                        |
+| `anime_id` | ID anime yang dirating                                  |
+| `rating`   | Rating yang diberikan pengguna terhadap anime (1–10)    |
+> *Rating = -1 berarti pengguna telah menonton tetapi tidak memberi rating.*
+
+---
+
+Exploratory Data Analysis (EDA)
+
+Beberapa visualisasi dan analisis yang dilakukan:
+- Distribusi `type` anime (TV paling dominan)
+- Korelasi antara `rating` dan `members`
+- Visualisasi jumlah episode
+- Visualisasi distribusi `rating`
+- Missing value analysis
 
 ## Data Preparation
 
