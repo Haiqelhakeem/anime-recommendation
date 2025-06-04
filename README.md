@@ -194,10 +194,14 @@ Menggunakan model Singular Value Decomposition (SVD) dari library Surprise. Mode
 | Kelebihan            | Bisa digunakan untuk item baru | Menangkap preferensi tersembunyi antar pengguna |
 | Kelemahan            | Tidak mempertimbangkan preferensi user yang lain | Tidak bisa bekerja tanpa data interaksi user yang cukup   |
 
-
 ## Evaluation
 RMSE (Root Mean Square Error) digunakan untuk mengevaluasi model Collaborative Filtering (SVD).
 ```python
 cross_val_results = cross_validate(svd, data, measures=['RMSE'], cv=3)
 ```
+
+$$
+  \text{RMSE} = \sqrt{\frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2}
+$$
+
 RMSE mengukur rata-rata akar dari kuadrat kesalahan prediksi. Makin kecil nilai RMSE, makin baik model memprediksi rating sebenarnya. RMSE cocok untuk sistem rekomendasi ini. Dari hasil cross-validation, nilai RMSE yang diperoleh mencerminkan kemampuan model untuk memprediksi rating dengan cukup baik, meskipun dapat bervariasi tergantung data dan parameter model.
