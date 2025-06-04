@@ -164,5 +164,40 @@ anime_df['popularity_score'] = (
 Skor popularitas dihitung sebagai hasil dari rating dikalikan logaritma dari jumlah `members`. Metrik ini menggabungkan kualitas (rating) dan kuantitas (jumlah pengguna) untuk menilai kepopuleran sebuah anime.
 
 ## Modeling
+1. Content-Based Filtering (TF-IDF + Cosine)
+```python
+cosine_sim = cosine_similarity(genre_matrix, genre_matrix)
+
+def content_recommend(title, n=5):
+    idx = anime_df[anime_df['name']==title].index[0]
+    sim_scores = list(enumerate(cosine_sim[idx]))
+    sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+    return anime_df.iloc[[i[0] for i in sim_scores[1:n+1]]]
+```
+Menggunakan kemiripan genre antara anime untuk memberikan rekomendasi. Fungsi `content_recommend()` memberikan n anime yang paling mirip berdasarkan genre dengan judul tertentu. Outputnya adalah Top-N recommendation berdasarkan genre similarity.
+
+2. Collaborative Filtering dengan SVD (Matrix Factorization)
+```python
+reader = Reader(rating_scale=(1, 10))
+data = Dataset.load_from_df(rating_df_clean[['user_id', 'anime_id', 'rating']], reader)
+
+svd = SVD()
+cross_val_results = cross_validate(svd, data, measures=['RMSE'], cv=3)
+svd.fit(data.build_full_trainset())
+```
+Menggunakan model Singular Value Decomposition (SVD) dari library Surprise. Model dilatih pada data interaksi user-anime-rating. Outputnya adalah prediksi rating user terhadap anime yang belum ditonton.
+
+| Aspek                | Content-Based (TF-IDF)                      | Collaborative Filtering (SVD)                   |
+| -------------------- | ------------------------------------------- | ----------------------------------------------- |
+| Berdasarkan          | Kesamaan konten (genre)                     | Pola rating dari user lain                      |
+| Data yang Dibutuhkan | Metadata anime (genre)                      | Data interaksi user (rating)                    |
+| Kelebihan            | Bisa digunakan untuk item baru | Menangkap preferensi tersembunyi antar pengguna |
+| Kelemahan            | Tidak mempertimbangkan preferensi user yang lain | Tidak bisa bekerja tanpa data interaksi user yang cukup   |
+
 
 ## Evaluation
+RMSE (Root Mean Square Error) digunakan untuk mengevaluasi model Collaborative Filtering (SVD).
+```python
+cross_val_results = cross_validate(svd, data, measures=['RMSE'], cv=3)
+```
+RMSE mengukur rata-rata akar dari kuadrat kesalahan prediksi. Makin kecil nilai RMSE, makin baik model memprediksi rating sebenarnya. RMSE cocok untuk sistem rekomendasi ini. Dari hasil cross-validation, nilai RMSE yang diperoleh mencerminkan kemampuan model untuk memprediksi rating dengan cukup baik, meskipun dapat bervariasi tergantung data dan parameter model.
