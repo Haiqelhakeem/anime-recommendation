@@ -95,6 +95,73 @@ Beberapa visualisasi dan analisis yang dilakukan:
 - Missing value analysis
 
 ## Data Preparation
+1. Penanganan Missing Value
+
+```python
+anime_df['genre'] = anime_df['genre'].fillna('Unknown')
+```
+Kolom `genre` yang kosong diidi dengan nilai `'Unknown'` agar dapat dilakukan preprocessing selanjutnya
+
+```python
+type_mode = anime_df['type'].mode()[0]
+anime_df['type'] = anime_df['type'].fillna(type_mode)
+```
+Kolom `type` diisi menggunakan modus (nilai yang paling sering muncul), karena `type` merupakan kategori (TV, Movie, dll), maka pengisian terbaik adalah dengan nilai paling umum.
+
+```python
+episode_medians = anime_df.groupby('type')['episodes'].median()
+anime_df['episodes'] = anime_df.apply(
+    lambda row: episode_medians[row['type']] if pd.isna(row['episodes']) else row['episodes'],
+    axis=1
+)
+```
+Nilai kosong pada kolom `episodes` diisi dengan nilai median episode berdasarkan type masing-masing. Teknik ini menghindari bias akibat nilai ekstrim dan mempertimbangkan konteks `type`.
+
+```python
+avg_rating = np.average(
+    anime_df['rating'].dropna(),
+    weights=anime_df.loc[anime_df['rating'].notna(), 'members']
+)
+anime_df['rating'] = anime_df['rating'].fillna(avg_rating)
+```
+Rating yang kosong diisi menggunakan weighted average berdasarkan jumlah `members`. Tujuannya agar rating lebih representatif karena memperhitungkan popularitas.
+
+2. Preprocessing Content Based Filtering
+```python
+anime_df['genre_list'] = anime_df['genre'].str.split(', ')
+```
+Genre diubah menjadi list agar dapat digunakan dalam proses tokenization genre.
+
+```python
+anime_df['genre_features'] = anime_df['genre'].str.replace(', ', ' ')
+```
+Genre diubah menjadi format string tunggal tanpa koma agar cocok digunakan oleh TF-IDF.
+
+```python
+rating_df_clean = rating_df[rating_df['rating'] > 0].dropna()
+```
+Menghapus baris rating yang tidak valid (rating = -1), karena artinya user tidak memberikan rating. Langkah ini penting agar model collaborative tidak dilatih dengan data kosong atau noise.
+
+3. Pembersihan Data Rating
+```python
+   rating_df_clean = rating_df[rating_df['rating'] > 0].dropna()
+```
+Menghapus baris rating yang tidak valid (rating = -1), karena artinya user tidak memberikan rating. Langkah ini penting agar model collaborative tidak dilatih dengan data kosong atau noise.
+
+4. Ekstraksi Fitur Content-Based dengan TF-IDF
+```python
+tfidf = TfidfVectorizer(tokenizer=lambda x: x, preprocessor=lambda x: x)
+genre_matrix = tfidf.fit_transform(anime_df['genre_list'])
+```
+Menggunakan TF-IDF untuk menghasilkan representasi vektor dari genre. Vektor ini digunakan untuk menghitung kemiripan antar anime dalam content-based filtering.
+
+5. Skor Popularitas
+```python
+anime_df['popularity_score'] = (
+    anime_df['rating'] * np.log1p(anime_df['members'])
+)
+```
+Skor popularitas dihitung sebagai hasil dari rating dikalikan logaritma dari jumlah `members`. Metrik ini menggabungkan kualitas (rating) dan kuantitas (jumlah pengguna) untuk menilai kepopuleran sebuah anime.
 
 ## Modeling
 
