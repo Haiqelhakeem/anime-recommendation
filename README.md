@@ -163,7 +163,7 @@ anime_df['popularity_score'] = (
 ```
 Skor popularitas dihitung sebagai hasil dari rating dikalikan logaritma dari jumlah `members`. Metrik ini menggabungkan kualitas (rating) dan kuantitas (jumlah pengguna) untuk menilai kepopuleran sebuah anime.
 
-## Modeling
+## Modeling and Results
 1. Content-Based Filtering (TF-IDF + Cosine)
 ```python
 cosine_sim = cosine_similarity(genre_matrix, genre_matrix)
@@ -175,6 +175,9 @@ def content_recommend(title, n=5):
     return anime_df.iloc[[i[0] for i in sim_scores[1:n+1]]]
 ```
 Menggunakan kemiripan genre antara anime untuk memberikan rekomendasi. Fungsi `content_recommend()` memberikan n anime yang paling mirip berdasarkan genre dengan judul tertentu. Outputnya adalah Top-N recommendation berdasarkan genre similarity.
+
+Berikut adalah contoh hasil rekomendasi dari anime 'Naruto':
+![image](https://github.com/user-attachments/assets/3227e483-9ef0-42c3-a361-2768b2abd558)
 
 2. Collaborative Filtering dengan SVD (Matrix Factorization)
 ```python
@@ -194,6 +197,9 @@ Menggunakan model Singular Value Decomposition (SVD) dari library Surprise. Mode
 | Kelebihan            | Bisa digunakan untuk item baru | Menangkap preferensi tersembunyi antar pengguna |
 | Kelemahan            | Tidak mempertimbangkan preferensi user yang lain | Tidak bisa bekerja tanpa data interaksi user yang cukup   |
 
+Berikut adalah rekomendasi berdasarkan SVD dengan user id = 1:
+![image](https://github.com/user-attachments/assets/2ad57b24-d57e-48ab-b1b1-bdd4ca1ce36b)
+
 ## Evaluation
 RMSE (Root Mean Square Error) digunakan untuk mengevaluasi model Collaborative Filtering (SVD).
 ```python
@@ -205,3 +211,32 @@ $$
 $$
 
 RMSE mengukur rata-rata akar dari kuadrat kesalahan prediksi. Makin kecil nilai RMSE, makin baik model memprediksi rating sebenarnya. RMSE cocok untuk sistem rekomendasi ini. Dari hasil cross-validation, nilai RMSE yang diperoleh mencerminkan kemampuan model untuk memprediksi rating dengan cukup baik, meskipun dapat bervariasi tergantung data dan parameter model.
+Hasil dari RMSE SVD adalah 1.1528
+
+Sementara untuk Content-Based Filtering menggunakan Precision@K, Recall@K dan F1-Score tidak bisa terhitung dikarenakan data training tidak cukup untuk membentuk profil pengguna yang valid. Akan tetapi berikut adalah rumus perhitungannya:
+
+Precision@K:
+Mengukur proporsi item relevan di antara K item teratas yang direkomendasikan.
+
+$$
+\text{Precision@K} = \frac{|\text{Recommended}_K \cap \text{Relevant}|}{K}
+$$
+
+- `Recommended_K`: Daftar K item yang direkomendasikan oleh sistem.
+- `Relevant`: Item yang relevan (misalnya, item dengan rating ≥ 4 dari pengguna).
+
+Recall@K:
+
+Mengukur proporsi item relevan yang berhasil ditemukan dari seluruh item relevan.
+
+$$
+\text{Recall@K} = \frac{|\text{Recommended}_K \cap \text{Relevant}|}{|\text{Relevant}|}
+$$
+
+F1-Score@K:
+
+Mengukur keseimbangan antara Precision@K dan Recall@K.
+
+$$
+\text{F1@K} = 2 \times \frac{\text{Precision@K} \times \text{Recall@K}}{\text{Precision@K} + \text{Recall@K}}
+$$
